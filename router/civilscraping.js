@@ -8,6 +8,7 @@ async function scraping() {
     try {
         const browser = await pup.launch({
             headless: true,
+            defaultViewport: null,
             executablePath: '/usr/bin/chromium-browser', // Caminho para o executável do Chromium
             args: ['--no-sandbox', '--disable-setuid-sandbox'] // Opções adicionais
         });
