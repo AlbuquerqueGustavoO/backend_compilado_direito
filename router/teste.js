@@ -8,7 +8,7 @@ const url = "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm
 async function scraping() {
     try {
         const browser = await pup.launch({
-            headless: true,
+            headless: "new",
             //executablePath: '/usr/bin/chromium-browser', // se estiver local comentar essa linha
             args: ['--no-sandbox', '--disable-setuid-sandbox'] // Opções adicionais
         });
