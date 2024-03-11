@@ -6,7 +6,12 @@ const url = "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm
 
 async function scraping() {
     try {
-        const browser = await pup.launch({ headless: true });
+        const browser = await pup.launch({
+            headless: true,
+            args:["--no-sandbox",'--disable-setuid-sandbox']
+            //executablePath: '/usr/bin/chromium-browser'
+        });
+
         const page = await browser.newPage();
         await page.goto(url);
 
@@ -37,7 +42,7 @@ async function scraping() {
 router.use(async (req, res, next) => {
     try {
         let data = await scraping(); // Aguardar a conclusão da raspagem
-        
+
         // Remover a parte específica da string
         data = data.replace("CONSTITUIÇÃO DA REPÚBLICA FEDERATIVA DO BRASIL DE 1988Texto compiladoPREÂMBULO", '');
 
