@@ -7,18 +7,24 @@ const url = "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm
 
 async function scraping() {
     try {
+        console.log('Iniciando o navegador...');
         const browser = await pup.launch({
             headless: true,
-            executablePath: '/usr/bin/chromium-browser', // se estiver local comentar essa linha
+            //executablePath: '/usr/bin/chromium-browser', // se estiver local comentar essa linha
             args: ['--no-sandbox', '--disable-setuid-sandbox'] // Opções adicionais
         });
+        console.log('Navegador iniciado com sucesso!');
         const page = await browser.newPage();
+        console.log('Abrindo a página...');
         await page.goto(url);
+        console.log('Página aberta com sucesso!');
 
+        console.log('Extraindo o conteúdo...');
         // Pegar o corpo da página e remover todos os espaços
         let bodyText = await page.evaluate(() => {
             return document.body.innerText;
         });
+        console.log('Conteúdo extraído com sucesso!');
 
         // Encontrar a posição da frase "Nós, representantes do povo brasileiro"
         const startIndex = bodyText.indexOf('Nós, representantes do povo brasileiro');
@@ -51,7 +57,9 @@ async function scraping() {
             await registro.save();
         }
 
+        console.log('Fechando o navegador...');
         await browser.close();
+        console.log('Navegador fechado com sucesso!');
         console.log('Scraping concluído com sucesso!');
     } catch (error) {
         console.error('Erro durante o scraping:', error);
