@@ -10,7 +10,7 @@ async function scraping() {
         const browser = await pup.launch({
             headless: true,
             executablePath: '/usr/bin/chromium-browser', // se estiver local comentar essa linha
-            //args: ['--no-sandbox', '--disable-setuid-sandbox'] // Opções adicionais
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Opções adicionais
         });
         const page = await browser.newPage();
         await page.goto(url);
