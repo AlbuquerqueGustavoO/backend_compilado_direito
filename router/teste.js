@@ -16,7 +16,7 @@ async function scraping() {
         console.log('Navegador iniciado com sucesso!');
         const page = await browser.newPage();
         console.log('Abrindo a página...');
-        await page.goto(url);
+        await page.goto(url, { timeout: 60000 });
         console.log('Página aberta com sucesso!');
 
         console.log('Extraindo o conteúdo...');
