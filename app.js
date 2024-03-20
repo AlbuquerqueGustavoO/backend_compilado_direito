@@ -1,13 +1,12 @@
 const express = require('express');
-const app = express();
 const cors = require('cors'); // Importe o módulo cors
 //const Scraping = require('./scraping');
 const bodyParser = require('body-parser');
-
 //const rotas = require('./router/router');
 //const rotaSacraping = require('./router/civil');
 const rotaTeste = require('./router/teste');
 
+const app = express();
 
 //const router = require('./router/civilscraping');//SCRAPING DIRETO, FUNCIONANDO
 
@@ -18,7 +17,7 @@ app.use(express.json());
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200'); // Corrigido para remover a barra no final
+    res.setHeader('Access-Control-Allow-Origin', 'http://54.94.127.45'); //http://localhost:4200 Corrigido para remover a barra no final
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
