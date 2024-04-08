@@ -1,8 +1,8 @@
 const pup = require('puppeteer');
-const Teste = require('../models/teste');
+const CivilProcesso = require('../models/civil-codigo-processo');
 const { Router } = require('express');
-const rotaTeste = new Router();
-const url = "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm";
+const civilProcesso = new Router();
+const url = "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm";
 
 
 async function scraping() {
@@ -46,7 +46,7 @@ async function scraping() {
         };
 
         // Criar ou atualizar registro no banco de dados
-        const [registro, criado] = await Teste.findOrCreate({
+        const [registro, criado] = await CivilProcesso.findOrCreate({
             where: { id: 1 }, // Aqui você pode usar o critério que desejar para encontrar o registro existente
             defaults: data // Dados que serão inseridos se nenhum registro for encontrado
         });
@@ -79,10 +79,10 @@ async function scraping() {
 scraping();
 
 // Rota GET para obter os dados
-rotaTeste.get('/', async (req, res) => {
+civilProcesso.get('/', async (req, res) => {
     try {
         // Obter os dados do banco de dados
-        const dados = await Teste.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
+        const dados = await CivilProcesso.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
 
         if (!dados) {
             return res.status(404).json({ message: 'Nenhum dado encontrado.' });
@@ -100,4 +100,4 @@ rotaTeste.get('/', async (req, res) => {
 });
 
 
-module.exports = rotaTeste;
+module.exports = civilProcesso;

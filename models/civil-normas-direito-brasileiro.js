@@ -1,7 +1,7 @@
 const Sequezile = require('sequelize');
 const db = require('../config/conexao');
 
-const Teste = db.define('teste',{
+const CivilNormas = db.define('civil_normas_direito',{
     id:{
         type: Sequezile.INTEGER,
         autoIncrement: true,
@@ -11,10 +11,10 @@ const Teste = db.define('teste',{
     conteudo: {
         type: Sequezile.TEXT,
         allowNull: false,
-    } 
+    }
 },{ freezeTableName: true }
 );
 //Quando não existir a tabela o comando abaixo vai criar a tabela
-Teste.sync();
+CivilNormas.sync();
 
-module.exports = Teste
+module.exports = CivilNormas

@@ -1,8 +1,8 @@
 const pup = require('puppeteer');
-const Civil = require('../models/civil');
+const Constituicao = require('../models/constituicao');
 const { Router } = require('express');
-const civil = new Router();
-const url = "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm";
+const constituicao = new Router();
+const url = "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm";
 
 
 async function scraping() {
@@ -46,7 +46,7 @@ async function scraping() {
         };
 
         // Criar ou atualizar registro no banco de dados
-        const [registro, criado] = await Civil.findOrCreate({
+        const [registro, criado] = await Constituicao.findOrCreate({
             where: { id: 1 }, // Aqui você pode usar o critério que desejar para encontrar o registro existente
             defaults: data // Dados que serão inseridos se nenhum registro for encontrado
         });
@@ -79,10 +79,10 @@ async function scraping() {
 scraping();
 
 // Rota GET para obter os dados
-civil.get('/', async (req, res) => {
+constituicao.get('/', async (req, res) => {
     try {
         // Obter os dados do banco de dados
-        const dados = await Civil.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
+        const dados = await Constituicao.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
 
         if (!dados) {
             return res.status(404).json({ message: 'Nenhum dado encontrado.' });
@@ -100,4 +100,4 @@ civil.get('/', async (req, res) => {
 });
 
 
-module.exports = civil;
+module.exports = constituicao;

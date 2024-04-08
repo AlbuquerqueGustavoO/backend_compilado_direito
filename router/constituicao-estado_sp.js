@@ -1,8 +1,8 @@
 const pup = require('puppeteer');
-const Civil = require('../models/civil');
+const ConstituicaoEstadoSP = require('../models/constituicao-estado-sp');
 const { Router } = require('express');
-const civil = new Router();
-const url = "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm";
+const constituicaoEstadoSp = new Router();
+const url = "https://www.al.sp.gov.br/repositorio/legislacao/constituicao/1989/compilacao-constituicao-0-05.10.1989.html";
 
 
 async function scraping() {
@@ -46,7 +46,7 @@ async function scraping() {
         };
 
         // Criar ou atualizar registro no banco de dados
-        const [registro, criado] = await Civil.findOrCreate({
+        const [registro, criado] = await ConstituicaoEstadoSP.findOrCreate({
             where: { id: 1 }, // Aqui você pode usar o critério que desejar para encontrar o registro existente
             defaults: data // Dados que serão inseridos se nenhum registro for encontrado
         });
@@ -79,10 +79,10 @@ async function scraping() {
 scraping();
 
 // Rota GET para obter os dados
-civil.get('/', async (req, res) => {
+constituicaoEstadoSp.get('/', async (req, res) => {
     try {
         // Obter os dados do banco de dados
-        const dados = await Civil.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
+        const dados = await ConstituicaoEstadoSP.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
 
         if (!dados) {
             return res.status(404).json({ message: 'Nenhum dado encontrado.' });
@@ -100,4 +100,4 @@ civil.get('/', async (req, res) => {
 });
 
 
-module.exports = civil;
+module.exports = constituicaoEstadoSp;

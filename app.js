@@ -1,14 +1,13 @@
 const express = require('express');
 const cors = require('cors'); // Importe o módulo cors
-//const Scraping = require('./scraping');
 const bodyParser = require('body-parser');
-//const rotas = require('./router/router');
-//const rotaSacraping = require('./router/civil');
-const rotaTeste = require('./router/teste');
+const civil = require('./router/civil');
+const civilProcesso = require('./router/civil-codigo-processo');
+const civilNormas = require('./router/civil-normas-direito-brasileiro');
+const constituicao = require('./router/constituicao');
+const constituicaoEstadoSp = require('./router/constituicao-estado_sp');
 
 const app = express();
-
-//const router = require('./router/civilscraping');//SCRAPING DIRETO, FUNCIONANDO
 
 app.use(cors()); // Use o middleware cors aqui
 
@@ -24,9 +23,11 @@ app.use((req, res, next) => {
 });
 
 
-//app.use('/teste', rotas);
-//app.use('/assss', rotaSacraping);
-app.use('/civilScraping', rotaTeste);
+app.use('/civil', civil);
+app.use('/civil-codigo-processo', civilProcesso);
+app.use('/civil-direito-brasileiro', civilNormas);
+app.use('/constituicao', constituicao);
+app.use('/constituicaoEstadoSP', constituicaoEstadoSp);
 //app.use('/axxx', router);//SCRAPING DIRETO, FUNCIONANDO
 
 app.listen(8080, () => {
