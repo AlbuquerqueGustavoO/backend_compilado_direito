@@ -1,8 +1,8 @@
 const pup = require('puppeteer');
-const ConstituicaoEstadoSP = require('../models/constituicao-estado-sp');
+const AdministrativoImprobidade = require('../models/administrativo-improbidade');
 const { Router } = require('express');
-const constituicaoEstadoSp = new Router();
-const url = "https://www.al.sp.gov.br/repositorio/legislacao/constituicao/1989/compilacao-constituicao-0-05.10.1989.html";
+const administrativoImprobidade = new Router();
+const url = "https://www.planalto.gov.br/ccivil_03/leis/l8429.htm";
 
 
 async function scraping() {
@@ -46,7 +46,7 @@ async function scraping() {
         };
 
         // Criar ou atualizar registro no banco de dados
-        const [registro, criado] = await ConstituicaoEstadoSP.findOrCreate({
+        const [registro, criado] = await AdministrativoImprobidade.findOrCreate({
             where: { id: 1 }, // Aqui você pode usar o critério que desejar para encontrar o registro existente
             defaults: data // Dados que serão inseridos se nenhum registro for encontrado
         });
@@ -76,13 +76,13 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-//scraping();
+scraping();
 
 // Rota GET para obter os dados
-constituicaoEstadoSp.get('/', async (req, res) => {
+administrativoImprobidade.get('/', async (req, res) => {
     try {
         // Obter os dados do banco de dados
-        const dados = await ConstituicaoEstadoSP.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
+        const dados = await AdministrativoImprobidade.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
 
         if (!dados) {
             return res.status(404).json({ message: 'Nenhum dado encontrado.' });
@@ -100,4 +100,4 @@ constituicaoEstadoSp.get('/', async (req, res) => {
 });
 
 
-module.exports = constituicaoEstadoSp;
+module.exports = administrativoImprobidade;

@@ -76,7 +76,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-scraping();
+//scraping();
 
 // Rota GET para obter os dados
 constituicao.get('/', async (req, res) => {
