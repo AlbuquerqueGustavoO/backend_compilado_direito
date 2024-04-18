@@ -9,6 +9,10 @@ const constituicaoEstadoSp = require('./router/constituicao-estado_sp');
 const administrativoContratos = require('./router/administrativo-contratos');
 const administrativoImprobidade = require('./router/administrativo-improbilidade');
 const administrativoServicosPublicos = require('./router/administrativo-servicos-publicos');
+const administrativoProcesso = require('./router/administrativo-processo');
+const administrativoServidoresPublicos = require('./router/administrativo-servidores-publico');
+const administrativoParceriaPublica = require('./router/administrativo-parceria-publica');
+
 
 const app = express();
 
@@ -34,6 +38,9 @@ app.use('/constituicaoEstadoSP', constituicaoEstadoSp);
 app.use('/administrativoContratos', administrativoContratos);
 app.use('/administrativoImprobidade', administrativoImprobidade);
 app.use('/administrativoServicosPublicos', administrativoServicosPublicos);
+app.use('/administrativoProcesso', administrativoProcesso);
+app.use('/administrativoServidoresPublico', administrativoServidoresPublicos);
+app.use('/administrativoParceriaPublico', administrativoParceriaPublica);
 
 
 app.listen(3001, () => {
