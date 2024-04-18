@@ -1,5 +1,5 @@
 const pup = require('puppeteer');
-const AdministrativoServidoresPublicos = require('../models/administrativo-servicos-publico');
+const AdministrativoServidoresPublicos = require('../models/administrativo-servidores-publico');
 const { Router } = require('express');
 const administrativoServidoresPublicos = new Router();
 const url = "https://www.planalto.gov.br/ccivil_03/leis/l8987compilada.htm";
