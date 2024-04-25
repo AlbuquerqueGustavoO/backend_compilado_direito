@@ -12,6 +12,15 @@ const administrativoServicosPublicos = require('./router/administrativo-servicos
 const administrativoProcesso = require('./router/administrativo-processo');
 const administrativoServidoresPublicos = require('./router/administrativo-servidores-publico');
 const administrativoParceriaPublica = require('./router/administrativo-parceria-publica');
+const tributarioCodigo = require('./router/tributario-codigo');
+const penalCodigo = require('./router/penal-codigo');
+const penalCodigoProcesso = require('./router/penal-codigo-processo');
+const penalCrimesHediondos = require('./router/penal-crimes-hediondos');
+const penalMariaPenha = require('./router/penal-maria-penha');
+const penalDrogas = require('./router/penal-drogas');
+const penalOrganizacaoCriminosa = require('./router/penal-organizacao-criminosa');
+const penalOcultacaoBens = require('./router/penal-ocultacao-bens');
+
 
 
 const app = express();
@@ -41,6 +50,14 @@ app.use('/administrativoServicosPublicos', administrativoServicosPublicos);
 app.use('/administrativoProcesso', administrativoProcesso);
 app.use('/administrativoServidoresPublico', administrativoServidoresPublicos);
 app.use('/administrativoParceriaPublico', administrativoParceriaPublica);
+app.use('/tributarioCodigo', tributarioCodigo);
+app.use('/penalCodigo', penalCodigo);
+app.use('/penalCodigoProcesso', penalCodigoProcesso);
+app.use('/penalCrimesHediondos', penalCrimesHediondos);
+app.use('/penalMariaPenha', penalMariaPenha);
+app.use('/penalDrogas', penalDrogas);
+app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
+app.use('/penalOcultacaoBens', penalOcultacaoBens);
 
 
 app.listen(3001, () => {

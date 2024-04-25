@@ -1,8 +1,8 @@
 const pup = require('puppeteer');
-const AdministrativoProcesso = require('../models/administrativo-processo');
+const PenalMariaPenha = require('../models/penal-maria-penha');
 const { Router } = require('express');
-const administrativoProcesso = new Router();
-const url = "https://www.planalto.gov.br/ccivil_03/leis/l9784.htm";
+const penalMariaPenha = new Router();
+const url = "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm";
 
 
 async function scraping() {
@@ -46,7 +46,7 @@ async function scraping() {
         };
 
         // Criar ou atualizar registro no banco de dados
-        const [registro, criado] = await AdministrativoProcesso.findOrCreate({
+        const [registro, criado] = await PenalMariaPenha.findOrCreate({
             where: { id: 1 }, // Aqui você pode usar o critério que desejar para encontrar o registro existente
             defaults: data // Dados que serão inseridos se nenhum registro for encontrado
         });
@@ -76,13 +76,13 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-//scraping();
+scraping();
 
 // Rota GET para obter os dados
-administrativoProcesso.get('/', async (req, res) => {
+penalMariaPenha.get('/', async (req, res) => {
     try {
         // Obter os dados do banco de dados
-        const dados = await AdministrativoProcesso.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
+        const dados = await PenalMariaPenha.findOne({ where: { id: 1 } }); // Altere o critério conforme necessário
 
         if (!dados) {
             return res.status(404).json({ message: 'Nenhum dado encontrado.' });
@@ -100,4 +100,4 @@ administrativoProcesso.get('/', async (req, res) => {
 });
 
 
-module.exports = administrativoProcesso;
+module.exports = penalMariaPenha;
