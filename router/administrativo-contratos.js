@@ -16,7 +16,7 @@ async function scraping() {
         console.log('Navegador iniciado com sucesso!');
         const page = await browser.newPage();
         console.log('Abrindo a página...');
-        await page.goto(url, { timeout: 60000 });
+        await page.goto(url, { timeout: 90000 });
         console.log('Página aberta com sucesso!');
 
         console.log('Extraindo o conteúdo...');
@@ -27,19 +27,17 @@ async function scraping() {
         console.log('Conteúdo extraído com sucesso!');
 
         // Encontrar a posição da frase "Nós, representantes do povo brasileiro"
-        const startIndex = bodyText.indexOf('Nós, representantes do povo brasileiro');
+        const startIndex = bodyText.indexOf('Presidência da República Secretaria-Geral Subchefia para Assuntos Jurídicos LEI Nº 14.');
 
         // Se a frase for encontrada, remover todo o conteúdo antes dela
         if (startIndex !== -1) {
             bodyText = bodyText.substring(startIndex);
         } else {
-            console.error('Frase "Nós, representantes do povo brasileiro" não encontrada no texto.');
+            console.error('string não encontrada"');
         }
 
         // Remover as strings específicas
-        bodyText = bodyText.replace("CONSTITUIÇÃO DA REPÚBLICA FEDERATIVA DO BRASIL DE 1988Texto compiladoPREÂMBULO", '');
-        bodyText = bodyText.replace("PresidênciadaRepúblicaCasaCivilSubchefiaparaAssuntosJurídicosCONSTITUIÇÃODAREPÚBLICAFEDERATIVADOBRASILDE1988VideEmendaConstitucionalnº91,de2016VideEmendaConstitucionalnº106,de2020VideEmendaConstitucionalnº107,de2020(VideEmendaConstitucionalnº132,de2023)Vigência(VideEmendaConstitucionalnº132,de2023)VigênciaEmendasConstitucionaisEmendasConstitucionaisdeRevisãoAtodasDisposiçõesConstitucionaisTransitóriasAtosdecorrentesdodispostono§3ºdoart.5ºÍNDICETEMÁTICOTextocompiladoPREÂMBULO", '');
-
+        //bodyText = bodyText.replace("Presidência da República Secretaria-Geral Subchefia para Assuntos Jurídicos LEI Nº 14.", '');
         // Armazenar no banco de dados
         const data = {
             conteudo: JSON.stringify(bodyText) // Convertendo para JSON antes de armazenar
@@ -70,7 +68,7 @@ async function scraping() {
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
     tomorrow.setHours(23);
-    tomorrow.setMinutes(0);
+    tomorrow.setMinutes(1);
     tomorrow.setSeconds(0);
     const timeUntilNextExecution = tomorrow.getTime() - now.getTime();
     setTimeout(scraping, timeUntilNextExecution);

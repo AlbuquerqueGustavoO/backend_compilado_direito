@@ -76,7 +76,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-scraping();
+//scraping();
 
 // Rota GET para obter os dados
 penalCodigo.get('/', async (req, res) => {
