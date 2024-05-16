@@ -62,7 +62,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-scraping();
+//scraping();
 
 // Rota GET para obter os dados
 administrativoServidoresPublicos.get('/', async (req, res) => {
