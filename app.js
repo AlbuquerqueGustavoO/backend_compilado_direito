@@ -32,7 +32,7 @@ app.use(express.json());
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://compiladodeleis.com.br/');//http://91.108.126.217 //http://localhost:4200 Corrigido para remover a barra no final
+    res.setHeader('Access-Control-Allow-Origin', 'http://compiladodeleis.com.br/'); //http://91.108.126.217 //http://localhost:4200 Corrigido para remover a barra no final
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
