@@ -4,14 +4,6 @@ const bodyParser = require('body-parser');
 const https = require('https');
 const fs = require('fs');
 
-// Carregar os certificados SSL
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.pem', 'utf8');
-
-const credentials = { key: privateKey, cert: certificate, ca: ca };
-const httpsServer = https.createServer(credentials, app);
-
 const civil = require('./router/civil');
 const civilProcesso = require('./router/civil-codigo-processo');
 const civilNormas = require('./router/civil-normas-direito-brasileiro');
@@ -35,6 +27,14 @@ const penalOcultacaoBens = require('./router/penal-ocultacao-bens');
 
 
 const app = express();
+
+// Carregar os certificados SSL
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.pem', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate, ca: ca };
+const httpsServer = https.createServer(credentials, app);
 
 app.use(cors()); // Use o middleware cors aqui
 
@@ -72,7 +72,7 @@ app.use('/penalOcultacaoBens', penalOcultacaoBens);
 
 
 httpsServer.listen(3001, () => {
-    console.log('Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
+    console.info('Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
 });
 
 // app.listen(3001, () => {
