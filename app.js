@@ -1,6 +1,17 @@
 const express = require('express');
 const cors = require('cors'); // Importe o módulo cors
 const bodyParser = require('body-parser');
+const https = require('https');
+const fs = require('fs');
+
+// Carregar os certificados SSL
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.pem', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate, ca: ca };
+const httpsServer = https.createServer(credentials, app);
+
 const civil = require('./router/civil');
 const civilProcesso = require('./router/civil-codigo-processo');
 const civilNormas = require('./router/civil-normas-direito-brasileiro');
@@ -32,7 +43,7 @@ app.use(express.json());
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://compiladodeleis.com.br'); //http://91.108.126.217 //http://localhost:4200 Corrigido para remover a barra no final
+    res.setHeader('Access-Control-Allow-Origin', 'https://compiladodeleis.com.br'); //http://91.108.126.217 //http://localhost:4200 Corrigido para remover a barra no final
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
@@ -60,6 +71,10 @@ app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
 app.use('/penalOcultacaoBens', penalOcultacaoBens);
 
 
-app.listen(3001, () => {
-    console.log("Servidor iniciado na porta 8080: http://localhost:3001");
+httpsServer.listen(3001, () => {
+    console.log('Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
 });
+
+// app.listen(3001, () => {
+//     console.log("Servidor iniciado na porta 8080: http://localhost:3001");
+// });
