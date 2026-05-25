@@ -47,7 +47,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-scraping();
+//scraping();
 
 tributarioCodigo.get('/', async (req, res) => {
     try {
