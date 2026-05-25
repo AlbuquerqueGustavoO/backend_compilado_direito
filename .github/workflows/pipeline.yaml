@@ -1,0 +1,35 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Backend na VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /root/backend_compilado_direito
+
+            echo "Atualizando repositório..."
+            git pull origin master
+
+            echo "Instalando dependências..."
+            npm install
+
+            echo "Reiniciando backend..."
+            pm2 restart compiladodeleis-backend
+
+            echo "Salvando PM2..."
+            pm2 save
+
+            echo "Deploy finalizado com sucesso!"
