@@ -47,7 +47,8 @@ async function scraping() {
     const timeUntilNextExecution = tomorrow.getTime() - now.getTime();
     setTimeout(scraping, timeUntilNextExecution);
 }
-// scraping();
+
+scraping();
 
 constituicaoEstadoSp.get('/', async (req, res) => {
     try {

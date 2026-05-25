@@ -48,7 +48,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-//scraping();
+scraping();
 
 constituicao.get('/', async (req, res) => {
     try {
