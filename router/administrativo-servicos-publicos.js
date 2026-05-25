@@ -48,7 +48,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-scraping();
+//scraping();
 
 administrativoServicosPublicos.get('/', async (req, res) => {
     try {
