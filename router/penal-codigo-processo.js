@@ -48,7 +48,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-//scraping();
+scraping();
 
 penalCodigoProcesso.get('/', async (req, res) => {
     try {

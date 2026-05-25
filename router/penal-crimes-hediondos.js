@@ -47,7 +47,7 @@ async function scraping() {
     setTimeout(scraping, timeUntilNextExecution);
 }
 
-//scraping();
+scraping();
 
 penalCrimesHediondos.get('/', async (req, res) => {
     try {
