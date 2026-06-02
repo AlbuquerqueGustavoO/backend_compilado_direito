@@ -1,8 +1,14 @@
 const express = require('express');
-const cors = require('cors'); // Importe o módulo cors
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const https = require('https');
 const fs = require('fs');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
+const schedulingService = require('./services/scheduling-service');
+const scrapingService = require('./services/scraping-service');
+
+const CivilProcesso = require('./models/civil-codigo-processo');
 
 const civil = require('./router/civil');
 const civilProcesso = require('./router/civil-codigo-processo');
@@ -37,14 +43,17 @@ const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.p
 const credentials = { key: privateKey, cert: certificate, ca: ca };
 const httpsServer = https.createServer(credentials, app);
 
-app.use(cors()); // Use o middleware cors aqui
+app.use(cors());
 
 app.use(bodyParser.json())
 app.use(express.json());
 
+// Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://compiladodeleis.com.br'); //https://compiladodeleis.com.br //http://localhost:4200 Corrigido para remover a barra no final
+    res.setHeader('Access-Control-Allow-Origin', 'https://compiladodeleis.com.br'); //https://compiladodeleis.com.br //http://localhost:4200
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
@@ -72,11 +81,22 @@ app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
 app.use('/penalOcultacaoBens', penalOcultacaoBens);
 app.use('/contato', Contato);
 
+// Inicializar agendador
+setTimeout(() => {
+    console.log('Inicializando agendador de scraping...');
+    schedulingService.scheduleDaily(
+        'civil-codigo-processo',
+        'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm',
+        CivilProcesso,
+        22,
+        3
+    );
+}, 2000);
 
 httpsServer.listen(3001, () => {
     console.info('Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
 });
 
 // app.listen(3001, () => {
-//     console.log("Servidor iniciado na porta 8080: http://localhost:3001");
+//     console.log("Servidor iniciado na porta 3001: http://localhost:3001");
 // });

@@ -1,20 +1,27 @@
-const Sequezile = require('sequelize');
+const Sequelize = require('sequelize');
 const db = require('../config/conexao');
 
 const PenalCrimesHediondos = db.define('penal_crimes_hediondos',{
     id:{
-        type: Sequezile.INTEGER,
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true
     },
     conteudo: {
-        type: Sequezile.TEXT,
+        type: Sequelize.TEXT('long'),
         allowNull: false,
+    },
+    referencia: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    ultimoScraping: {
+        type: Sequelize.DATE,
+        allowNull: true,
     }
 },{ freezeTableName: true }
 );
-//Quando não existir a tabela o comando abaixo vai criar a tabela
-PenalCrimesHediondos.sync();
+PenalCrimesHediondos.sync({ alter: true });
 
 module.exports = PenalCrimesHediondos

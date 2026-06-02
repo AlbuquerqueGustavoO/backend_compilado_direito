@@ -1,20 +1,34 @@
-const Sequezile = require('sequelize');
+const Sequelize = require('sequelize');
 const db = require('../config/conexao');
 
-const CivilProcesso = db.define('civil_codigo_processo',{
-    id:{
-        type: Sequezile.INTEGER,
+const CivilProcesso = db.define('civil_codigo_processo', {
+    id: {
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true
     },
+
     conteudo: {
-        type: Sequezile.TEXT,
+        type: Sequelize.TEXT('long'),
         allowNull: false,
+    },
+
+    referencia: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+
+    ultimoScraping: {
+        type: Sequelize.DATE,
+        allowNull: true,
     }
-},{ freezeTableName: true }
-);
-//Quando não existir a tabela o comando abaixo vai criar a tabela
-CivilProcesso.sync();
+
+}, {
+    freezeTableName: true,
+    timestamps: false
+});
+
+CivilProcesso.sync({ alter: true });
 
 module.exports = CivilProcesso
