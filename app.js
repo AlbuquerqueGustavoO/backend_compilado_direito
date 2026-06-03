@@ -7,8 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 const schedulingService = require('./services/scheduling-service');
 const scrapingService = require('./services/scraping-service');
-
-const CivilProcesso = require('./models/civil-codigo-processo');
+const scrapingRoutes = require('./config/scraping-config');
 
 const civil = require('./router/civil');
 const civilProcesso = require('./router/civil-codigo-processo');
@@ -81,16 +80,22 @@ app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
 app.use('/penalOcultacaoBens', penalOcultacaoBens);
 app.use('/contato', Contato);
 
-// Inicializar agendador
 setTimeout(() => {
-    console.log('Inicializando agendador de scraping...');
-    schedulingService.scheduleDaily(
-        'civil-codigo-processo',
-        'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm',
-        CivilProcesso,
-        22,
-        3
-    );
+    console.log('Inicializando agendador de scraping para todas as rotas...');
+    console.log(`Total de rotas a agendar: ${scrapingRoutes.length}`);
+    
+    scrapingRoutes.forEach((route, index) => {
+        schedulingService.scheduleDaily(
+            route.name,
+            route.url,
+            route.model,
+            route.startHour,
+            route.startMinute
+        );
+        console.log(`✓ Agendado: ${route.name} às ${route.startHour}:${String(route.startMinute).padStart(2, '0')}`);
+    });
+    
+    console.log('Todas as rotas foram agendadas com sucesso!');
 }, 2000);
 
 httpsServer.listen(3001, () => {
