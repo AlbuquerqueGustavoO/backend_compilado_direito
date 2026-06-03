@@ -34,13 +34,21 @@ const Contato = require('./router/contato');
 
 const app = express();
 
-// Carregar os certificados SSL
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.pem', 'utf8');
+// Carregar os certificados SSL com tratamento de erro
+let httpsServer;
+try {
+    const privateKey = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/privkey.pem', 'utf8');
+    const certificate = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/cert.pem', 'utf8');
+    const ca = fs.readFileSync('/etc/letsencrypt/live/compiladodeleis.com.br/chain.pem', 'utf8');
 
-const credentials = { key: privateKey, cert: certificate, ca: ca };
-const httpsServer = https.createServer(credentials, app);
+    const credentials = { key: privateKey, cert: certificate, ca: ca };
+    httpsServer = https.createServer(credentials, app);
+    console.log('✓ Certificados SSL carregados com sucesso');
+} catch (error) {
+    console.warn('⚠ Certificados SSL não encontrados. Usando HTTP para desenvolvimento.');
+    console.warn(`Erro: ${error.message}`);
+    httpsServer = null;
+}
 
 app.use(cors());
 
@@ -98,10 +106,13 @@ setTimeout(() => {
     console.log('Todas as rotas foram agendadas com sucesso!');
 }, 2000);
 
-httpsServer.listen(3001, () => {
-    console.info('Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
-});
-
-// app.listen(3001, () => {
-//     console.log("Servidor iniciado na porta 3001: http://localhost:3001");
-// });
+if (httpsServer) {
+    httpsServer.listen(3001, () => {
+        console.info('✓ Servidor HTTPS iniciado na porta 3001: https://compiladodeleis.com.br:3001');
+    });
+} else {
+    app.listen(3001, () => {
+        console.log("✓ Servidor HTTP iniciado na porta 3001: http://localhost:3001");
+        console.log("Para produção com HTTPS, configure os certificados SSL em /etc/letsencrypt/live/compiladodeleis.com.br/");
+    });
+}
