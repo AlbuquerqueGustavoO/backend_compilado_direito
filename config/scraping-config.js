@@ -1,6 +1,4 @@
-// Configuração centralizada de scraping
-// Cada rota inicia 1 minuto depois da anterior, começando às 22:03
-
+const Civil = require('../models/civil');
 const CivilProcesso = require('../models/civil-codigo-processo');
 const CivilNormas = require('../models/civil-normas-direito-brasileiro');
 const ConstituicaoFederal = require('../models/constituicao');
@@ -16,6 +14,9 @@ const PenalCodigo = require('../models/penal-codigo');
 const PenalCodigoProcesso = require('../models/penal-codigo-processo');
 const PenalCrimesHediondos = require('../models/penal-crimes-hediondos');
 const PenalMariaPenha = require('../models/penal-maria-penha');
+const PenalDrogas = require('../models/penal-drogas');
+const PenalOrganizacaoCriminosa = require('../models/penal-organizacao-criminosa');
+const PenalOcultacaoBens = require('../models/penal-ocultacao-bens');
 
 const scrapingRoutes = [
     {
@@ -27,7 +28,7 @@ const scrapingRoutes = [
     },
     {
         name: 'civil-normas-direito-brasileiro',
-        url: 'https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp95.htm',
+        url: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del4657compilado.htm',
         model: CivilNormas,
         startHour: 22,
         startMinute: 4
@@ -122,6 +123,34 @@ const scrapingRoutes = [
         model: PenalMariaPenha,
         startHour: 22,
         startMinute: 17
+    },
+    {
+        name: 'civil',
+        url: 'https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm',
+        model: Civil,
+        startHour: 22,
+        startMinute: 18
+    },
+    {
+        name: 'penal-drogas',
+        url: 'https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm',
+        model: PenalDrogas,
+        startHour: 22,
+        startMinute: 19
+    },
+    {
+        name: 'penal-organizacao-criminosa',
+        url: 'https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12850.htm',
+        model: PenalOrganizacaoCriminosa,
+        startHour: 22,
+        startMinute: 20
+    },
+    {
+        name: 'penal-ocultacao-bens',
+        url: 'https://www.planalto.gov.br/ccivil_03/leis/l9613.htm',
+        model: PenalOcultacaoBens,
+        startHour: 22,
+        startMinute: 21
     }
 ];
 
