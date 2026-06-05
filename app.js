@@ -28,6 +28,7 @@ const penalMariaPenha = require('./router/penal-maria-penha');
 const penalDrogas = require('./router/penal-drogas');
 const penalOrganizacaoCriminosa = require('./router/penal-organizacao-criminosa');
 const penalOcultacaoBens = require('./router/penal-ocultacao-bens');
+const scrapingErrors = require('./router/scraping-errors');
 const Contato = require('./router/contato');
 
 
@@ -55,7 +56,7 @@ app.use(cors());
 app.use(bodyParser.json())
 app.use(express.json());
 
-// Swagger
+// http://localhost:3001/api-docs/#/
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 
@@ -86,6 +87,7 @@ app.use('/penalMariaPenha', penalMariaPenha);
 app.use('/penalDrogas', penalDrogas);
 app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
 app.use('/penalOcultacaoBens', penalOcultacaoBens);
+app.use('/scraping-errors', scrapingErrors);
 app.use('/contato', Contato);
 
 setTimeout(() => {
@@ -93,14 +95,21 @@ setTimeout(() => {
     console.log(`Total de rotas a agendar: ${scrapingRoutes.length}`);
     
     scrapingRoutes.forEach((route, index) => {
+        // Ensure at least 5 minutes between scheduled scrapes
+        const baseHour = typeof route.startHour === 'number' ? route.startHour : 22;
+        const baseMinute = typeof route.startMinute === 'number' ? route.startMinute : 0;
+        const totalMinutes = baseHour * 60 + baseMinute + (index * 5);
+        const scheduledHour = Math.floor(totalMinutes / 60) % 24;
+        const scheduledMinute = totalMinutes % 60;
+
         schedulingService.scheduleDaily(
             route.name,
             route.url,
             route.model,
-            route.startHour,
-            route.startMinute
+            scheduledHour,
+            scheduledMinute
         );
-        console.log(`✓ Agendado: ${route.name} às ${route.startHour}:${String(route.startMinute).padStart(2, '0')}`);
+        console.log(`✓ Agendado: ${route.name} às ${scheduledHour}:${String(scheduledMinute).padStart(2, '0')}`);
     });
     
     console.log('Todas as rotas foram agendadas com sucesso!');
