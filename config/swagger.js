@@ -14,8 +14,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
-        description: 'Desenvolvimento'
+        url: process.env.SWAGGER_SERVER_URL || 'http://localhost:3001',
+        description: process.env.SWAGGER_SERVER_URL ? 'Produção' : 'Desenvolvimento'
       }
     ],
     components: {

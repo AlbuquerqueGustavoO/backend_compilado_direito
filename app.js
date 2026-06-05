@@ -61,7 +61,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://compiladodeleis.com.br'); //https://compiladodeleis.com.br //http://localhost:4200
+    const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:4200').split(',').map(s => s.trim());
+    const origin = req.headers.origin;
+
+    if (allowedOrigins.includes('*')) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    } else if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else if (allowedOrigins.length > 0) {
+        res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+    }
+
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
