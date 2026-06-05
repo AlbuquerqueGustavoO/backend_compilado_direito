@@ -8,15 +8,42 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Deploy Backend na VPS
+      - name: Preparar chave SSH temporária
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ./deploy_id_rsa
+          chmod 600 ./deploy_id_rsa
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Aguardar SSH disponível (tentativas com backoff)
+        run: |
+          HOST=${{ secrets.SSH_HOST }}
+          USER=${{ secrets.SSH_USERNAME }}
+          PORT=${{ secrets.SSH_PORT || '22' }}
+          ATTEMPTS=6
+          SLEEP=10
+          i=0
+          until ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i ./deploy_id_rsa -p $PORT "$USER@$HOST" exit 2>/dev/null; do
+            i=$((i+1))
+            echo "Tentativa $i: SSH não disponível ainda. Aguardando $SLEEP segundos..."
+            if [ $i -ge $ATTEMPTS ]; then
+              echo "SSH ainda indisponível após $ATTEMPTS tentativas. Abortando deploy."
+              exit 1
+            fi
+            sleep $SLEEP
+          done
+
+      - name: Deploy Backend na VPS (via appleboy/ssh-action)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          port: ${{ secrets.SSH_PORT || '22' }}
+          timeout: 120
           script: |
             cd /root/backend_compilado_direito
 
@@ -24,10 +51,10 @@ jobs:
             git pull origin master
 
             echo "Instalando dependências..."
-            npm install
+            npm install --production
 
             echo "Reiniciando backend..."
-            pm2 restart compiladodeleis-backend
+            pm2 restart compiladodeleis-backend || pm2 start npm --name compiladodeleis-backend -- start
 
             echo "Salvando PM2..."
             pm2 save
