@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
-          timeout: 120
+          timeout: '120s'
           script: |
             cd /root/backend_compilado_direito
 
