@@ -61,7 +61,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 
 app.use((req, res, next) => {
-    const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:4200' || 'https://compiladodeleis.com.br').split(',').map(s => s.trim());
+    const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || 'https://compiladodeleis.com.br').split(',').map(s => s.trim());//'http://localhost:4200'
     const origin = req.headers.origin;
 
     if (allowedOrigins.includes('*')) {
