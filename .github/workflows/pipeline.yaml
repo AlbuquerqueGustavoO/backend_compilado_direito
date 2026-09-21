@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
-          envs: "SWAGGER_SERVER_URL=${{ secrets.SWAGGER_SERVER_URL }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}"
+          envs: "SWAGGER_SERVER_URL=${{ secrets.SWAGGER_SERVER_URL }},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }},JWT_SECRET=${{ secrets.JWT_SECRET }},JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}"
           timeout: '120s'
           script: |
             cd /root/backend_compilado_direito
@@ -54,8 +54,17 @@ jobs:
             echo "Instalando dependências..."
             npm install --production
 
+            echo "Atualizando variáveis de ambiente..."
+            cat > .env <<ENVFILE
+            NODE_ENV=production
+            CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+            SWAGGER_SERVER_URL=${SWAGGER_SERVER_URL}
+            JWT_SECRET=${JWT_SECRET}
+            JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+            ENVFILE
+
             echo "Reiniciando backend..."
-            pm2 restart compiladodeleis-backend || pm2 start npm --name compiladodeleis-backend -- start
+            pm2 restart compiladodeleis-backend --update-env || pm2 start npm --name compiladodeleis-backend -- start
 
             echo "Salvando PM2..."
             pm2 save
