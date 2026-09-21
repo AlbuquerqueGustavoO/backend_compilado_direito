@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -30,10 +31,13 @@ const penalOrganizacaoCriminosa = require('./router/penal-organizacao-criminosa'
 const penalOcultacaoBens = require('./router/penal-ocultacao-bens');
 const scrapingErrors = require('./router/scraping-errors');
 const Contato = require('./router/contato');
+const user = require('./router/user');
 
 
 
 const app = express();
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Carregar os certificados SSL com tratamento de erro
 let httpsServer;
@@ -51,32 +55,26 @@ try {
     httpsServer = null;
 }
 
-app.use(cors());
+const DEFAULT_CORS_ORIGIN = isProduction ? 'https://compiladodeleis.com.br' : 'http://localhost:4200';
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || DEFAULT_CORS_ORIGIN).split(',').map(s => s.trim());
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Origem não permitida pelo CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use(bodyParser.json())
 app.use(express.json());
 
 // http://localhost:3001/api-docs/#/
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-
-
-app.use((req, res, next) => {
-    const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || 'https://compiladodeleis.com.br').split(',').map(s => s.trim());//'http://localhost:4200'
-    const origin = req.headers.origin;
-
-    if (allowedOrigins.includes('*')) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-    } else if (origin && allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    } else if (allowedOrigins.length > 0) {
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
-    }
-
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
-
 
 app.use('/civil', civil);
 app.use('/civil-codigo-processo', civilProcesso);
@@ -99,6 +97,14 @@ app.use('/penalOrganizacaoCriminosa', penalOrganizacaoCriminosa);
 app.use('/penalOcultacaoBens', penalOcultacaoBens);
 app.use('/scraping-errors', scrapingErrors);
 app.use('/contato', Contato);
+app.use('/user', user);
+
+app.use((err, req, res, next) => {
+    if (err && err.message === 'Origem não permitida pelo CORS') {
+        return res.status(403).json({ error: true, mensagem: err.message });
+    }
+    next(err);
+});
 
 setTimeout(() => {
     console.log('Inicializando agendador de scraping para todas as rotas...');

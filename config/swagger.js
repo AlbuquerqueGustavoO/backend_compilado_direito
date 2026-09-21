@@ -86,6 +86,58 @@ const options = {
               type: 'string'
             }
           }
+        },
+        Usuario: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer'
+            },
+            nome: {
+              type: 'string'
+            },
+            sobre: {
+              type: 'string'
+            },
+            email: {
+              type: 'string',
+              format: 'email'
+            }
+          }
+        },
+        UsuarioCadastro: {
+          type: 'object',
+          required: ['nome', 'email', 'senha'],
+          properties: {
+            nome: {
+              type: 'string'
+            },
+            sobre: {
+              type: 'string'
+            },
+            email: {
+              type: 'string',
+              format: 'email'
+            },
+            senha: {
+              type: 'string',
+              format: 'password'
+            }
+          }
+        },
+        UsuarioLogin: {
+          type: 'object',
+          required: ['email', 'senha'],
+          properties: {
+            email: {
+              type: 'string',
+              format: 'email'
+            },
+            senha: {
+              type: 'string',
+              format: 'password'
+            }
+          }
         }
       }
     }
