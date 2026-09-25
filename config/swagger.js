@@ -87,6 +87,18 @@ const options = {
             }
           }
         },
+        Perfil: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer'
+            },
+            nome: {
+              type: 'string',
+              enum: ['estudante', 'advogado', 'admin']
+            }
+          }
+        },
         Usuario: {
           type: 'object',
           properties: {

@@ -32,6 +32,7 @@ const penalOcultacaoBens = require('./router/penal-ocultacao-bens');
 const scrapingErrors = require('./router/scraping-errors');
 const Contato = require('./router/contato');
 const user = require('./router/user');
+const perfil = require('./router/perfil');
 
 
 
@@ -98,6 +99,7 @@ app.use('/penalOcultacaoBens', penalOcultacaoBens);
 app.use('/scraping-errors', scrapingErrors);
 app.use('/contato', Contato);
 app.use('/user', user);
+app.use('/perfis', perfil);
 
 app.use((err, req, res, next) => {
     if (err && err.message === 'Origem não permitida pelo CORS') {
