@@ -6,10 +6,18 @@ const jwt = require('jsonwebtoken');
 
 const rotas = new Router();
 const User = require('../models/user');
+const Perfil = require('../models/perfil');
 //const Civil = require('../models/civil');
 
-const SENHA_ATTR_EXCLUDE = { exclude: ['senha'] };
-const PERFIS_AUTOCADASTRO = User.PERFIS.filter((perfil) => perfil !== 'admin');
+const SENHA_ATTR_EXCLUDE = { exclude: ['senha', 'perfilId'] };
+const INCLUDE_PERFIL = { model: Perfil, as: 'perfil', attributes: ['nome'] };
+const PERFIS_AUTOCADASTRO = Perfil.NOMES_PADRAO.filter((nome) => nome !== 'admin');
+
+function formatarUsuario(usuario) {
+    const json = usuario.toJSON ? usuario.toJSON() : usuario;
+    json.perfil = json.perfil ? json.perfil.nome : null;
+    return json;
+}
 
 /**
  * @swagger
@@ -31,8 +39,8 @@ const PERFIS_AUTOCADASTRO = User.PERFIS.filter((perfil) => perfil !== 'admin');
  */
 rotas.get("/", async (req, res) => {
     try {
-        const users = await User.findAll({ attributes: SENHA_ATTR_EXCLUDE });
-        res.json(users);
+        const users = await User.findAll({ attributes: SENHA_ATTR_EXCLUDE, include: [INCLUDE_PERFIL] });
+        res.json(users.map(formatarUsuario));
     } catch (err) {
         res.json({ error: true, mensagem: err.message });
     }
@@ -62,8 +70,8 @@ rotas.get("/", async (req, res) => {
 rotas.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const users = await User.findByPk(id, { attributes: SENHA_ATTR_EXCLUDE });
-        res.json(users);
+        const usuario = await User.findByPk(id, { attributes: SENHA_ATTR_EXCLUDE, include: [INCLUDE_PERFIL] });
+        res.json(usuario ? formatarUsuario(usuario) : null);
     } catch (err) {
         res.json({ error: true, mensagem: err.message });
     }
@@ -103,7 +111,8 @@ rotas.post("/cadastrar", async (req, res) => {
             });
         }
 
-        if (perfil && !PERFIS_AUTOCADASTRO.includes(perfil)) {
+        const perfilNome = perfil || 'estudante';
+        if (!PERFIS_AUTOCADASTRO.includes(perfilNome)) {
             return res.status(400).json({
                 error: true,
                 mensagem: `Perfil inválido! Valores aceitos: ${PERFIS_AUTOCADASTRO.join(', ')}`
@@ -118,9 +127,17 @@ rotas.post("/cadastrar", async (req, res) => {
             });
         }
 
+        const perfilRow = await Perfil.findOne({ where: { nome: perfilNome } });
+        if (!perfilRow) {
+            return res.status(500).json({
+                error: true,
+                mensagem: 'Perfil não configurado no sistema.'
+            });
+        }
+
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        await User.create({ nome, sobre, email, senha: senhaHash, perfil: perfil || 'estudante' });
+        await User.create({ nome, sobre, email, senha: senhaHash, perfilId: perfilRow.id });
 
         return res.json({
             error: false,
@@ -168,7 +185,7 @@ rotas.post("/login", async (req, res) => {
             });
         }
 
-        const usuario = await User.findOne({ where: { email } });
+        const usuario = await User.findOne({ where: { email }, include: [INCLUDE_PERFIL] });
         if (!usuario) {
             return res.status(401).json({
                 error: true,
@@ -184,8 +201,10 @@ rotas.post("/login", async (req, res) => {
             });
         }
 
+        const usuarioFormatado = formatarUsuario(usuario);
+
         const token = jwt.sign(
-            { id: usuario.id, email: usuario.email, perfil: usuario.perfil },
+            { id: usuario.id, email: usuario.email, perfil: usuarioFormatado.perfil },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
@@ -195,11 +214,11 @@ rotas.post("/login", async (req, res) => {
             mensagem: 'Login realizado com sucesso!',
             token,
             usuario: {
-                id: usuario.id,
-                nome: usuario.nome,
-                sobre: usuario.sobre,
-                email: usuario.email,
-                perfil: usuario.perfil
+                id: usuarioFormatado.id,
+                nome: usuarioFormatado.nome,
+                sobre: usuarioFormatado.sobre,
+                email: usuarioFormatado.email,
+                perfil: usuarioFormatado.perfil
             }
         });
     } catch (err) {

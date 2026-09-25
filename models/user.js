@@ -1,7 +1,6 @@
 const Sequezile = require('sequelize');
 const db = require('../config/conexao');
-
-const PERFIS = ['estudante', 'advogado', 'admin'];
+const Perfil = require('./perfil');
 
 const User = db.define('usuarios',{
     id:{
@@ -30,15 +29,61 @@ const User = db.define('usuarios',{
         type: Sequezile.STRING,
         allowNull: false,
     },
-    perfil: {
-        type: Sequezile.ENUM(...PERFIS),
+    perfilId: {
+        type: Sequezile.INTEGER,
         allowNull: false,
-        defaultValue: 'estudante'
+        references: {
+            model: Perfil,
+            key: 'id'
+        }
     }
 });
-//Cria a tabela se não existir e aplica colunas novas/alteradas em tabelas já existentes
-User.sync({ alter: true });
 
-User.PERFIS = PERFIS;
+User.belongsTo(Perfil, { foreignKey: 'perfilId', as: 'perfil' });
+Perfil.hasMany(User, { foreignKey: 'perfilId' });
 
-module.exports = User
+async function tabelaExiste(nome) {
+    const [rows] = await db.query(
+        'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',
+        { replacements: [nome] }
+    );
+    return rows.length > 0;
+}
+
+// Migração de uma vez só: tabelas antigas tinham a coluna `perfil` (enum) direto em `usuarios`.
+// Se ela ainda existir, copia os valores para `perfilId` (FK) e remove a coluna antiga.
+async function migrarPerfilLegado() {
+    if (!(await tabelaExiste('usuarios'))) {
+        return;
+    }
+
+    const [colunaPerfil] = await db.query("SHOW COLUMNS FROM usuarios LIKE 'perfil'");
+    if (colunaPerfil.length === 0) {
+        return;
+    }
+
+    console.log('Migrando usuarios.perfil (enum) para usuarios.perfilId (FK)...');
+
+    const [colunaPerfilId] = await db.query("SHOW COLUMNS FROM usuarios LIKE 'perfilId'");
+    if (colunaPerfilId.length === 0) {
+        await db.query('ALTER TABLE usuarios ADD COLUMN perfilId INT NULL');
+    }
+
+    await db.query(`
+        UPDATE usuarios u
+        JOIN perfis p ON p.nome = u.perfil
+        SET u.perfilId = p.id
+        WHERE u.perfilId IS NULL
+    `);
+
+    await db.query('ALTER TABLE usuarios DROP COLUMN perfil');
+
+    console.log('Migração de usuarios.perfil concluída.');
+}
+
+Perfil.pronto
+    .then(migrarPerfilLegado)
+    .then(() => User.sync({ alter: true }))
+    .catch((err) => console.error('Erro ao sincronizar usuarios/perfis:', err.message));
+
+module.exports = User;
