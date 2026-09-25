@@ -235,8 +235,11 @@ rotas.post("/login", async (req, res) => {
  * /user/{id}:
  *   put:
  *     summary: Atualiza um usuário existente
+ *     description: O próprio usuário pode editar seus dados, ou um admin pode editar qualquer usuário
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -262,9 +265,29 @@ rotas.post("/login", async (req, res) => {
  *     responses:
  *       200:
  *         description: Atualizado com sucesso
+ *       401:
+ *         description: Token ausente, inválido ou expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
+ *       403:
+ *         description: Usuário autenticado não é o dono da conta nem admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  */
-rotas.put('/:id', async (req, res) => {
+rotas.put('/:id', verificarToken, async (req, res) => {
     try {
+        const donoDaConta = String(req.usuario.id) === String(req.params.id);
+        if (!donoDaConta && req.usuario.perfil !== 'admin') {
+            return res.status(403).json({
+                error: true,
+                mensagem: 'Você não tem permissão para editar este usuário!'
+            });
+        }
+
         const { nome, sobre, email, senha } = req.body;
         const dadosAtualizados = { nome, sobre, email };
 
@@ -381,8 +404,11 @@ rotas.patch('/:id/perfil', verificarToken, permitir('admin'), async (req, res) =
  * /user/{id}:
  *   delete:
  *     summary: Remove um usuário
+ *     description: Apenas usuários com perfil admin podem executar esta ação
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -392,8 +418,20 @@ rotas.patch('/:id/perfil', verificarToken, permitir('admin'), async (req, res) =
  *     responses:
  *       200:
  *         description: Usuário removido com sucesso
+ *       401:
+ *         description: Token ausente, inválido ou expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
+ *       403:
+ *         description: Usuário autenticado não é admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  */
-rotas.delete('/:id', async (req, res) => {
+rotas.delete('/:id', verificarToken, permitir('admin'), async (req, res) => {
     try {
         await User.destroy({
             where: {
