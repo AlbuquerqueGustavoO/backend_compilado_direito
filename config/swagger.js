@@ -102,6 +102,10 @@ const options = {
             email: {
               type: 'string',
               format: 'email'
+            },
+            perfil: {
+              type: 'string',
+              enum: ['estudante', 'advogado', 'admin']
             }
           }
         },
@@ -122,6 +126,11 @@ const options = {
             senha: {
               type: 'string',
               format: 'password'
+            },
+            perfil: {
+              type: 'string',
+              enum: ['estudante', 'advogado'],
+              description: 'Opcional. Default: estudante. Não é possível se autocadastrar como admin.'
             }
           }
         },

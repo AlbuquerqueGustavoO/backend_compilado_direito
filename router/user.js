@@ -9,6 +9,7 @@ const User = require('../models/user');
 //const Civil = require('../models/civil');
 
 const SENHA_ATTR_EXCLUDE = { exclude: ['senha'] };
+const PERFIS_AUTOCADASTRO = User.PERFIS.filter((perfil) => perfil !== 'admin');
 
 /**
  * @swagger
@@ -93,12 +94,19 @@ rotas.get("/:id", async (req, res) => {
  */
 rotas.post("/cadastrar", async (req, res) => {
     try {
-        const { nome, sobre, email, senha } = req.body;
+        const { nome, sobre, email, senha, perfil } = req.body;
 
         if (!nome || !email || !senha) {
             return res.status(400).json({
                 error: true,
                 mensagem: 'Nome, email e senha são obrigatórios!'
+            });
+        }
+
+        if (perfil && !PERFIS_AUTOCADASTRO.includes(perfil)) {
+            return res.status(400).json({
+                error: true,
+                mensagem: `Perfil inválido! Valores aceitos: ${PERFIS_AUTOCADASTRO.join(', ')}`
             });
         }
 
@@ -112,7 +120,7 @@ rotas.post("/cadastrar", async (req, res) => {
 
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        await User.create({ nome, sobre, email, senha: senhaHash });
+        await User.create({ nome, sobre, email, senha: senhaHash, perfil: perfil || 'estudante' });
 
         return res.json({
             error: false,
@@ -177,7 +185,7 @@ rotas.post("/login", async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: usuario.id, email: usuario.email },
+            { id: usuario.id, email: usuario.email, perfil: usuario.perfil },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
@@ -190,7 +198,8 @@ rotas.post("/login", async (req, res) => {
                 id: usuario.id,
                 nome: usuario.nome,
                 sobre: usuario.sobre,
-                email: usuario.email
+                email: usuario.email,
+                perfil: usuario.perfil
             }
         });
     } catch (err) {

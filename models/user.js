@@ -1,6 +1,8 @@
 const Sequezile = require('sequelize');
 const db = require('../config/conexao');
 
+const PERFIS = ['estudante', 'advogado', 'admin'];
+
 const User = db.define('usuarios',{
     id:{
         type: Sequezile.INTEGER,
@@ -27,9 +29,16 @@ const User = db.define('usuarios',{
     senha: {
         type: Sequezile.STRING,
         allowNull: false,
+    },
+    perfil: {
+        type: Sequezile.ENUM(...PERFIS),
+        allowNull: false,
+        defaultValue: 'estudante'
     }
 });
 //Quando não existir a tabela o comando abaixo vai criar a tabela
 User.sync();
+
+User.PERFIS = PERFIS;
 
 module.exports = User
