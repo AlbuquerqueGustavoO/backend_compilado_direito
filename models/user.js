@@ -20,7 +20,10 @@ const User = db.define('usuarios',{
     email: {
         type: Sequezile.STRING,
         allowNull: false,
-        unique: true,
+        // unique já está garantido por constraint física no banco (aplicada uma vez via migração).
+        // Não declarar `unique: true` aqui de propósito: com `sync({ alter: true })`, o Sequelize
+        // não reconhece a constraint já existente (o nome que ele gera muda a cada sync) e cria
+        // outra em cima a cada restart, acumulando dezenas de índices duplicados.
         validate: {
             isEmail: true
         }
@@ -31,16 +34,16 @@ const User = db.define('usuarios',{
     },
     perfilId: {
         type: Sequezile.INTEGER,
-        allowNull: false,
-        references: {
-            model: Perfil,
-            key: 'id'
-        }
+        allowNull: false
+        // FK física já aplicada via migração (ver migrarPerfilLegado). Não redeclarar `references`
+        // aqui: pelo mesmo motivo do `email`, isso faz o alter recriar a constraint a cada restart.
     }
 });
 
-User.belongsTo(Perfil, { foreignKey: 'perfilId', as: 'perfil' });
-Perfil.hasMany(User, { foreignKey: 'perfilId' });
+// constraints: false -- a FK física já existe no banco; isso só ensina o Sequelize a fazer o join
+// (`include`) sem tentar gerenciar a constraint via sync/alter.
+User.belongsTo(Perfil, { foreignKey: 'perfilId', as: 'perfil', constraints: false });
+Perfil.hasMany(User, { foreignKey: 'perfilId', constraints: false });
 
 async function tabelaExiste(nome) {
     const [rows] = await db.query(
