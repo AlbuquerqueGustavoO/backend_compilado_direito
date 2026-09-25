@@ -36,8 +36,8 @@ const User = db.define('usuarios',{
         defaultValue: 'estudante'
     }
 });
-//Quando não existir a tabela o comando abaixo vai criar a tabela
-User.sync();
+//Cria a tabela se não existir e aplica colunas novas/alteradas em tabelas já existentes
+User.sync({ alter: true });
 
 User.PERFIS = PERFIS;
 
