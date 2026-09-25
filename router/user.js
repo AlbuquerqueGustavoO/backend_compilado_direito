@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const rotas = new Router();
 const User = require('../models/user');
 const Perfil = require('../models/perfil');
+const { verificarToken, permitir } = require('../middleware/auth');
 //const Civil = require('../models/civil');
 
 const SENHA_ATTR_EXCLUDE = { exclude: ['senha', 'perfilId'] };
@@ -280,6 +281,98 @@ rotas.put('/:id', async (req, res) => {
         res.status(200).json({message: 'Atualizado com sucesso!'})
     } catch (err) {
         res.json({ error: true, mensagem: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /user/{id}/perfil:
+ *   patch:
+ *     summary: Altera o perfil de um usuário
+ *     description: Apenas usuários com perfil admin podem executar esta ação
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [perfil]
+ *             properties:
+ *               perfil:
+ *                 type: string
+ *                 enum: [estudante, advogado, admin]
+ *     responses:
+ *       200:
+ *         description: Perfil atualizado com sucesso
+ *       401:
+ *         description: Token ausente, inválido ou expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
+ *       403:
+ *         description: Usuário autenticado não é admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
+ */
+rotas.patch('/:id/perfil', verificarToken, permitir('admin'), async (req, res) => {
+    try {
+        const { perfil } = req.body;
+
+        if (!perfil || !Perfil.NOMES_PADRAO.includes(perfil)) {
+            return res.status(400).json({
+                error: true,
+                mensagem: `Perfil inválido! Valores aceitos: ${Perfil.NOMES_PADRAO.join(', ')}`
+            });
+        }
+
+        const perfilRow = await Perfil.findOne({ where: { nome: perfil } });
+        if (!perfilRow) {
+            return res.status(500).json({
+                error: true,
+                mensagem: 'Perfil não configurado no sistema.'
+            });
+        }
+
+        const [linhasAfetadas] = await User.update(
+            { perfilId: perfilRow.id },
+            { where: { id: req.params.id } }
+        );
+
+        if (linhasAfetadas === 0) {
+            return res.status(404).json({
+                error: true,
+                mensagem: 'Usuário não encontrado.'
+            });
+        }
+
+        return res.json({
+            error: false,
+            mensagem: 'Perfil atualizado com sucesso!'
+        });
+    } catch (err) {
+        return res.status(400).json({
+            error: true,
+            mensagem: err.message
+        });
     }
 });
 
